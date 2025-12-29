@@ -1,48 +1,79 @@
 'use client'
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+// We change 'Marker' to 'CircleMarker' for the sleek dot look
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css'
 import 'leaflet-defaulticon-compatibility'
 
 export default function Map({ daycares }) {
-  // Center roughly on Toronto
   const position = [43.70, -79.42]
 
   return (
-    <MapContainer center={position} zoom={11} style={{ height: '100%', width: '100%' }}>
+    <MapContainer 
+      center={position} 
+      zoom={12} 
+      style={{ height: '100%', width: '100%', background: '#f8fafc' }}
+      zoomControl={false} // We hide zoom buttons for a cleaner mobile look (pinch to zoom works)
+    >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; OpenStreetMap contributors'
+        // Using a cleaner, black & white map style (CartoDB Voyager) for sophistication
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
       
       {daycares.map((daycare) => (
-        <Marker 
+        <CircleMarker 
             key={daycare.id} 
-            position={[daycare.latitude, daycare.longitude]}
+            center={[daycare.latitude, daycare.longitude]}
+            radius={6} // Size of the dot
+            pathOptions={{ 
+                color: '#ffffff',    // White border
+                fillColor: '#0f172a', // Slate-900 (Dark Navy) fill
+                fillOpacity: 0.9,
+                weight: 2 
+            }}
         >
-          <Popup>
-            <div className="p-1 min-w-[200px]">
-              <h3 className="font-bold text-lg leading-tight">{daycare.name}</h3>
-              <p className="text-sm text-gray-600 mb-2">{daycare.address}</p>
+          <Popup closeButton={false} className="clean-popup">
+            <div className="p-2 min-w-[200px]">
+              {/* Type Tag */}
+              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wider text-slate-500 bg-slate-100 uppercase mb-2">
+                {daycare.type}
+              </span>
               
-              <div className="mt-2 flex gap-1 flex-wrap mb-3">
-                {daycare.accepts_infant && <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Infant</span>}
-                {daycare.accepts_toddler && <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Toddler</span>}
-                {daycare.is_cwelcc_participant && <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded border border-purple-200">$10/Day</span>}
+              <h3 className="font-bold text-slate-900 text-base leading-tight mb-1">{daycare.name}</h3>
+              <p className="text-xs text-slate-500 mb-3">{daycare.address}</p>
+              
+              <div className="flex gap-1 flex-wrap mb-4">
+                {daycare.accepts_infant && <Badge text="Infant" color="blue" />}
+                {daycare.accepts_toddler && <Badge text="Toddler" color="emerald" />}
+                {daycare.is_cwelcc_participant && <Badge text="$10/Day" color="purple" />}
               </div>
 
-              {/* Standard HTML link is best for Map Popups */}
               <a 
                 href={`/daycare/${daycare.id}`}
-                className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded transition-colors"
+                className="block w-full text-center bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold py-2.5 rounded-lg transition-all"
               >
-                View Full Profile
+                View Details
               </a>
             </div>
           </Popup>
-        </Marker>
+        </CircleMarker>
       ))}
     </MapContainer>
+  )
+}
+
+function Badge({ text, color }) {
+  // Mapping simplistic colors to Tailwind classes
+  const styles = {
+    blue: "bg-blue-50 text-blue-700",
+    emerald: "bg-emerald-50 text-emerald-700",
+    purple: "bg-purple-50 text-purple-700",
+  }
+  return (
+    <span className={`px-2 py-1 rounded text-[10px] font-medium ${styles[color] || "bg-gray-100"}`}>
+      {text}
+    </span>
   )
 }

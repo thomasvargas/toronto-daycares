@@ -3,17 +3,14 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import dynamic from 'next/dynamic'
 
-// Dynamically import Map
 const Map = dynamic(() => import('../components/Map'), { 
   ssr: false,
-  loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Loading Map...</div>
+  loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-50 text-gray-400">Loading Map...</div>
 })
 
 export default function Home() {
   const [daycares, setDaycares] = useState([])
   const [loading, setLoading] = useState(true)
-  
-  // 1. FILTER STATE: Keep track of which buttons are 'ON'
   const [filters, setFilters] = useState({
     infant: false,
     toddler: false,
@@ -21,7 +18,6 @@ export default function Home() {
     subsidy: false
   })
 
-  // Fetch data once on load
   useEffect(() => {
     async function fetchDaycares() {
       const { data, error } = await supabase.from('daycares').select('*')
@@ -32,8 +28,6 @@ export default function Home() {
     fetchDaycares()
   }, [])
 
-  // 2. FILTER LOGIC: This runs every time a button is clicked
-  // It starts with the full list and removes daycares that don't match
   const filteredDaycares = daycares.filter(daycare => {
     if (filters.infant && !daycare.accepts_infant) return false
     if (filters.toddler && !daycare.accepts_toddler) return false
@@ -42,52 +36,49 @@ export default function Home() {
     return true
   })
 
-  // Helper to toggle filters
   const toggleFilter = (key) => {
     setFilters(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
   return (
-    <main className="flex h-screen flex-col bg-gray-50">
+    <main className="flex h-screen flex-col bg-slate-50 relative overflow-hidden">
       
-      {/* HEADER & CONTROLS */}
-      <div className="bg-white shadow-md z-10 p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* FLOATING CONTROL PANEL */}
+      <div className="absolute top-0 left-0 right-0 z-[1000] p-4 pointer-events-none">
+        <div className="max-w-4xl mx-auto pointer-events-auto">
+          <div className="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl border border-gray-100 p-4 md:p-5">
             
-            {/* Title */}
-            <div>
-              <h1 className="text-2xl font-bold text-blue-900">Toronto Daycare Map</h1>
-              <p className="text-sm text-gray-500">
-                Showing {filteredDaycares.length} of {daycares.length} locations
-              </p>
+            {/* Top Row: Title & Count */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <div>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">Toronto Daycare Finder</h1>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-1">
+                  {loading ? 'Searching...' : `Found ${filteredDaycares.length} Locations`}
+                </p>
+              </div>
             </div>
 
-            {/* Filter Buttons */}
+            {/* Filter Pills */}
             <div className="flex flex-wrap gap-2">
-              <FilterButton 
+              <FilterPill 
                 label="Infant (0-18m)" 
                 active={filters.infant} 
                 onClick={() => toggleFilter('infant')}
-                color="blue"
               />
-              <FilterButton 
+              <FilterPill 
                 label="Toddler (18m-2.5y)" 
                 active={filters.toddler} 
                 onClick={() => toggleFilter('toddler')}
-                color="green"
               />
-              <FilterButton 
+              <FilterPill 
                 label="$10/Day Program" 
                 active={filters.cwelcc} 
                 onClick={() => toggleFilter('cwelcc')}
-                color="purple"
               />
-              <FilterButton 
-                label="Accepts Subsidy" 
+              <FilterPill 
+                label="Subsidies" 
                 active={filters.subsidy} 
                 onClick={() => toggleFilter('subsidy')}
-                color="orange"
               />
             </div>
 
@@ -95,34 +86,28 @@ export default function Home() {
         </div>
       </div>
 
-      {/* MAP AREA */}
-      <div className="flex-grow relative">
-        {loading ? (
-           <div className="h-full flex items-center justify-center">Loading...</div>
-        ) : (
-           <Map daycares={filteredDaycares} />
-        )}
+      {/* FULL SCREEN MAP */}
+      <div className="absolute inset-0 z-0">
+        <Map daycares={filteredDaycares} />
       </div>
     </main>
   )
 }
 
-// A small sub-component for the buttons to keep code clean
-function FilterButton({ label, active, onClick, color }) {
-  // Define colors for Active vs Inactive state
-  const colorMap = {
-    blue:   active ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-400",
-    green:  active ? "bg-green-600 text-white border-green-600" : "bg-white text-gray-700 border-gray-300 hover:border-green-400",
-    purple: active ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-700 border-gray-300 hover:border-purple-400",
-    orange: active ? "bg-orange-600 text-white border-orange-600" : "bg-white text-gray-700 border-gray-300 hover:border-orange-400",
-  }
-
+// Sophisticated "Pill" Button Component
+function FilterPill({ label, active, onClick }) {
   return (
     <button 
       onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors duration-200 ${colorMap[color]}`}
+      className={`
+        px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border
+        ${active 
+          ? "bg-slate-900 text-white border-slate-900 shadow-md transform scale-105" 
+          : "bg-white text-slate-600 border-gray-200 hover:border-slate-300 hover:shadow-sm"
+        }
+      `}
     >
-      {active && "✓ "} {label}
+      {label}
     </button>
   )
 }
