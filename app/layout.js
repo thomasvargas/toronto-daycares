@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Toronto Daycare Map",
-  description: "A map of licensed child care centres in Toronto",
+  title: "Lola's List",
+  description: 'A curated childcare finder for Toronto parents',
 };
 
 export default function RootLayout({ children }) {

@@ -60,9 +60,12 @@ export default function Home() {
             
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">Toronto Daycare Finder</h1>
+                {/* BRANDING UPDATE */}
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                  Lola&apos;s List
+                </h1>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-1">
-                  {loading ? 'Loading...' : `Found ${filteredDaycares.length} Locations`}
+                  A Childcare Finder
                 </p>
               </div>
               

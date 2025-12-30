@@ -46,8 +46,9 @@ export default function Login() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Welcome</h1>
-          <p className="text-slate-500 mt-2">Sign in to save your favorite daycares.</p>
+          {/* BRANDING UPDATE */}
+          <h1 className="text-3xl font-bold text-slate-900">Lola&apos;s List</h1>
+          <p className="text-slate-500 mt-2">Sign in to your curated childcare finder.</p>
         </div>
 
         {/* FEEDBACK MESSAGE */}
