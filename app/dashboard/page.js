@@ -19,6 +19,7 @@ export default function Dashboard() {
       }
 
       // 2. Fetch Saved Daycares AND the details (JOIN)
+      // FIXED: Removed 'rating' because it doesn't exist in your database
       const { data, error } = await supabase
         .from('saved_daycares')
         .select(`
@@ -28,8 +29,7 @@ export default function Dashboard() {
             name,
             address,
             phone,
-            type,
-            rating
+            type
           )
         `)
       
