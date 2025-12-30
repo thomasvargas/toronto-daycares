@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import dynamic from 'next/dynamic'
 
+// Dynamically import the Map so it doesn't break on the server
 const Map = dynamic(() => import('../components/Map'), { 
   ssr: false,
   loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-50 text-gray-400">Loading Map...</div>
@@ -48,14 +49,19 @@ export default function Home() {
         <div className="max-w-4xl mx-auto pointer-events-auto">
           <div className="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl border border-gray-100 p-4 md:p-5">
             
-            {/* Top Row: Title & Count */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            {/* Top Row: Title, Count, and LOGIN Button */}
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight">Toronto Daycare Finder</h1>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-1">
                   {loading ? 'Searching...' : `Found ${filteredDaycares.length} Locations`}
                 </p>
               </div>
+              
+              {/* NEW: Sign In Link */}
+              <a href="/login" className="text-sm font-semibold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                Sign In
+              </a>
             </div>
 
             {/* Filter Pills */}
