@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import Link from 'next/link'
+import Image from 'next/image' // Added for the mini logo
 import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
@@ -11,14 +12,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchSaved() {
-      // 1. Check Auth
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         router.push('/login')
         return
       }
 
-      // 2. Fetch Data (Including new columns)
       const { data, error } = await supabase
         .from('saved_daycares')
         .select(`
@@ -36,7 +35,7 @@ export default function Dashboard() {
             type
           )
         `)
-        .order('id', { ascending: false }) // Newest on top
+        .order('id', { ascending: false })
       
       if (error) console.error('Error:', error)
       else setSavedItems(data || [])
@@ -46,7 +45,6 @@ export default function Dashboard() {
     fetchSaved()
   }, [router])
 
-  // REMOVE FUNCTION
   const removeItem = async (idToDelete) => {
     const { error } = await supabase
       .from('saved_daycares')
@@ -60,30 +58,48 @@ export default function Dashboard() {
     }
   }
 
-  if (loading) return <div className="p-12 text-center text-slate-400">Loading your list...</div>
+  if (loading) return <div className="p-12 text-center text-slate-400 bg-[#FDFBF7] min-h-screen pt-20">Loading your list...</div>
 
   return (
+    // BRANDING FIX: Main background matches homepage
     <div className="min-h-screen bg-[#FDFBF7]">
-      {/* HEADER */}
-      <div className="bg-white border-b border-stone-100 px-6 py-6 sticky top-0 z-50">
+      
+      {/* BRANDING FIX: Header matches homepage color */}
+      <div className="bg-[#FDFBF7] border-b border-stone-200 px-6 py-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">My Shortlist</h1>
-            <p className="text-slate-500 text-sm mt-1">Track your applications</p>
+          
+          {/* Header Title + Mini Logo */}
+          <div className="flex items-center gap-3">
+             {/* Mini Logo for continuity */}
+             <div className="relative h-10 w-10 shrink-0">
+               <Image 
+                 src="/logo.png" 
+                 alt="Logo" 
+                 fill
+                 className="object-contain mix-blend-multiply"
+               />
+             </div>
+             <div>
+                <h1 className="text-xl font-bold text-slate-900">My Shortlist</h1>
+                <p className="text-slate-500 text-xs font-medium">Track your applications</p>
+             </div>
           </div>
-          <Link href="/" className="text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg transition-colors">
+
+          {/* BRANDING FIX: Button is now Lola Yellow */}
+          <Link href="/" className="text-sm font-bold text-slate-900 bg-yellow-400 hover:bg-yellow-300 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all">
             + Add More
           </Link>
         </div>
       </div>
 
-      {/* LIST CONTENT */}
-      <div className="max-w-4xl mx-auto px-6 py-10 space-y-6">
+      {/* CONTENT */}
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
         
         {savedItems.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+          <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900">Your list is empty</h3>
-            <Link href="/" className="mt-4 bg-yellow-400 text-slate-900 px-8 py-3 rounded-full font-bold shadow-md inline-block">
+            <p className="text-slate-500 text-sm mb-6 mt-1">Start browsing to build your list.</p>
+            <Link href="/" className="bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-md hover:scale-105 transition-transform inline-block">
               Browse Map
             </Link>
           </div>
@@ -101,9 +117,7 @@ export default function Dashboard() {
   )
 }
 
-// --- SUB-COMPONENT: HANDLES THE INPUTS & SAVING ---
 function TrackerCard({ item, onRemove }) {
-  // Local state for the inputs (so typing is fast)
   const [data, setData] = useState({
     contacted: item.contacted || false,
     contacted_date: item.contacted_date || '',
@@ -112,13 +126,9 @@ function TrackerCard({ item, onRemove }) {
     notes: item.notes || ''
   })
 
-  // THE AUTO-SAVE MAGIC
-  // This function runs every time you change an input
   const updateField = async (field, value) => {
-    // 1. Update screen instantly (optimistic UI)
     setData(prev => ({ ...prev, [field]: value }))
 
-    // 2. Send to Supabase silently
     const { error } = await supabase
       .from('saved_daycares')
       .update({ [field]: value })
@@ -128,46 +138,53 @@ function TrackerCard({ item, onRemove }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
       
-      {/* TOP SECTION: INFO */}
-      <div className="p-6 flex justify-between items-start gap-4">
+      {/* TOP SECTION: INFO (Clean White) */}
+      <div className="p-5 sm:p-6 flex justify-between items-start gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-900">{item.daycares.name}</h3>
-          <p className="text-slate-500 text-sm mt-1">{item.daycares.address}</p>
-          <div className="mt-2 flex gap-2">
-            <span className="bg-stone-100 text-stone-600 text-xs font-bold px-2 py-1 rounded">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+            {item.daycares.name}
+          </h3>
+          <p className="text-slate-500 text-sm mt-1 mb-3">{item.daycares.address}</p>
+          
+          <div className="flex flex-wrap gap-2">
+            <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded">
               {item.daycares.type}
             </span>
-            <a href={`tel:${item.daycares.phone}`} className="text-blue-600 text-xs font-bold px-2 py-1 hover:underline">
-              📞 {item.daycares.phone || 'No phone'}
-            </a>
+            {item.daycares.phone && (
+                <a href={`tel:${item.daycares.phone}`} className="text-blue-600 bg-blue-50 text-xs font-bold px-2 py-1 rounded hover:bg-blue-100 transition-colors">
+                📞 {item.daycares.phone}
+                </a>
+            )}
           </div>
         </div>
         
-        <div className="flex flex-col gap-2">
-           <Link href={`/daycare/${item.daycares.id}`} className="text-xs font-bold text-center bg-slate-50 text-slate-600 px-3 py-1.5 rounded hover:bg-slate-100">
-             View Details
+        <div className="flex flex-col gap-2 shrink-0">
+           <Link href={`/daycare/${item.daycares.id}`} className="text-xs font-bold text-center text-slate-500 hover:text-blue-600 border border-slate-200 hover:border-blue-200 px-3 py-1.5 rounded-lg transition-all">
+             Details
            </Link>
-           <button onClick={onRemove} className="text-xs font-bold text-red-400 px-3 py-1.5 hover:text-red-600">
+           <button onClick={onRemove} className="text-xs font-bold text-red-400 hover:text-red-600 px-3 py-1.5 transition-colors">
              Remove
            </button>
         </div>
       </div>
 
-      {/* BOTTOM SECTION: TRACKER (The "Spreadsheet" Part) */}
-      <div className="bg-yellow-50/50 border-t border-yellow-100 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* BOTTOM SECTION: TRACKER (High Contrast / Branded) */}
+      {/* Changed background to white, but added a top border in Lola Yellow */}
+      <div className="bg-slate-50 border-t-4 border-yellow-400 p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
         
-        {/* COLUMN 1: STATUS */}
+        {/* COLUMN 1: CHECKBOXES */}
         <div className="space-y-3">
-          {/* Contacted Checkbox */}
-          <div className="flex items-center justify-between bg-white p-2 rounded border border-yellow-100">
-            <label className="text-sm font-bold text-slate-700 flex items-center gap-2 cursor-pointer">
+          
+          {/* Contacted */}
+          <div className={`flex items-center justify-between p-3 rounded-xl border transition-all ${data.contacted ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
+            <label className="text-sm font-bold text-slate-700 flex items-center gap-3 cursor-pointer select-none w-full">
               <input 
                 type="checkbox" 
                 checked={data.contacted} 
                 onChange={(e) => updateField('contacted', e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
               />
               Contacted?
             </label>
@@ -176,42 +193,42 @@ function TrackerCard({ item, onRemove }) {
                  type="date" 
                  value={data.contacted_date}
                  onChange={(e) => updateField('contacted_date', e.target.value)}
-                 className="text-xs border-none bg-transparent text-slate-500 focus:ring-0 text-right"
+                 className="text-xs font-medium border-none bg-transparent text-blue-600 focus:ring-0 text-right p-0"
                />
             )}
           </div>
 
-          {/* Waitlist Checkbox */}
-          <div className="flex items-center justify-between bg-white p-2 rounded border border-yellow-100">
-             <label className="text-sm font-bold text-slate-700 flex items-center gap-2 cursor-pointer">
+          {/* Waitlist */}
+          <div className={`flex items-center justify-between p-3 rounded-xl border transition-all ${data.on_waitlist ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}>
+             <label className="text-sm font-bold text-slate-700 flex items-center gap-3 cursor-pointer select-none w-full">
               <input 
                 type="checkbox" 
                 checked={data.on_waitlist} 
                 onChange={(e) => updateField('on_waitlist', e.target.checked)}
-                className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                className="w-5 h-5 text-green-600 rounded focus:ring-green-500 border-gray-300"
               />
               On Waitlist?
             </label>
           </div>
         </div>
 
-        {/* COLUMN 2: FOLLOW UP & NOTES */}
+        {/* COLUMN 2: NOTES & DATES */}
         <div className="space-y-3">
-           <div className="flex items-center gap-2 bg-white p-2 rounded border border-yellow-100">
-              <span className="text-xs font-bold text-slate-400 uppercase">Next Follow Up:</span>
+           <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200">
+              <span className="text-xs font-bold text-slate-400 uppercase shrink-0">Follow Up:</span>
               <input 
                 type="date" 
                 value={data.follow_up_date}
                 onChange={(e) => updateField('follow_up_date', e.target.value)}
-                className="flex-1 text-sm border-none bg-transparent focus:ring-0 p-0 text-slate-700"
+                className="w-full text-sm font-bold border-none bg-transparent focus:ring-0 p-0 text-slate-700"
               />
            </div>
 
            <textarea 
-             placeholder="Add notes (e.g. 'Spoke to Sarah, tour scheduled')..."
+             placeholder="Add notes..."
              value={data.notes}
              onChange={(e) => updateField('notes', e.target.value)}
-             className="w-full text-sm p-2 rounded border border-yellow-100 focus:border-blue-300 focus:ring-0 bg-white resize-none h-20"
+             className="w-full text-sm p-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-blue-400 focus:ring-1 bg-white resize-none h-20 transition-all placeholder:text-slate-400"
            />
         </div>
 
