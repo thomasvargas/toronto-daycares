@@ -24,3 +24,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.bg-lola-yellow {
+  background-color: #FCD34D; /* A warm yellow */
+  color: #1e293b; /* Dark text for contrast */
+}
+.text-lola-blue {
+  color: #3B82F6; /* Soft blue */
+}

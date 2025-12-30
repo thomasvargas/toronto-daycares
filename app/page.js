@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import Image from 'next/image' // <--- Added this import
 
 const Map = dynamic(() => import('../components/Map'), { 
   ssr: false,
@@ -59,14 +60,28 @@ export default function Home() {
           <div className="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl border border-gray-100 p-4 md:p-5">
             
             <div className="flex items-center justify-between mb-4">
-              <div>
-                {/* BRANDING UPDATE */}
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                  Lola&apos;s List
-                </h1>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-1">
-                  A Childcare Finder
-                </p>
+              
+              {/* BRANDING SECTION WITH LOGO */}
+              <div className="flex items-center gap-3">
+                {/* Logo Image */}
+                <div className="relative h-12 w-12 shrink-0">
+                  <Image 
+                    src="/logo.png" 
+                    alt="Lola's List Logo" 
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                
+                {/* Text */}
+                <div>
+                  <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-tight">
+                    Lola&apos;s List
+                  </h1>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    A Childcare Finder
+                  </p>
+                </div>
               </div>
               
               {/* AUTH SECTION */}
