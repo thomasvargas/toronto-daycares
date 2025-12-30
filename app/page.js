@@ -56,72 +56,69 @@ export default function Home() {
       
       {/* WIDE TOP BANNER */}
       <div className="absolute top-0 left-0 right-0 z-[1000] pointer-events-none">
-        {/* Changed from max-w-4xl to w-full for a wide banner */}
         <div className="w-full pointer-events-auto">
-          <div className="bg-white/95 backdrop-blur-md shadow-md border-b border-gray-200 px-6 py-4 md:px-8 md:py-5">
+          {/* UPDATED BANNER STYLES:
+             - bg-[#FFF9F0]: Cream color to blend with logo background.
+             - Added 'flex items-center gap-8' to parent container for layout.
+          */}
+          <div className="bg-[#FFF9F0] shadow-md border-b border-yellow-100 px-6 py-4 md:px-8 md:py-6 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
             
-            <div className="flex items-center justify-between mb-4">
-              
-              {/* BRANDING SECTION - LARGER LOGO & TEXT */}
-              <div className="flex items-center gap-4">
-                {/* Larger Logo Container (h-24 w-24) */}
-                <div className="relative h-24 w-24 shrink-0">
-                  <Image 
-                    src="/logo.png" 
-                    alt="Lola's List Logo" 
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <div>
-                  {/* Larger Text size */}
-                  <h1 className="text-3xl font-bold text-slate-900 tracking-tight leading-none">
-                    Lola&apos;s List
-                  </h1>
-                  <p className="text-sm font-medium text-slate-500 uppercase tracking-wide mt-1">
-                    A Childcare Finder
-                  </p>
-                </div>
-              </div>
-              
-              {/* AUTH SECTION */}
-              {user ? (
-                <div className="flex items-center gap-3">
-                    <Link href="/dashboard" className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 transition-all cursor-pointer group shadow-sm">
-                        <div className="h-8 w-8 rounded-full bg-yellow-400 text-slate-900 flex items-center justify-center text-sm font-bold">
-                            {user.email[0].toUpperCase()}
-                        </div>
-                        <span className="text-sm font-bold text-slate-800 hidden sm:block">
-                            My Shortlist
-                        </span>
-                    </Link>
-                    
-                    <button 
-                        onClick={handleLogout}
-                        className="text-sm font-semibold text-slate-400 hover:text-red-600 transition-colors px-2"
-                    >
-                        Log Out
-                    </button>
-                </div>
-              ) : (
-                <Link href="/login" className="text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full shadow-md transition-colors">
-                  Sign In
-                </Link>
-              )}
+            {/* LEFT: LOGO (Redundant text removed, size doubled) */}
+            {/* Increased from h-24 to h-48 for 2x size */}
+            <div className="relative h-48 w-48 shrink-0">
+                <Image 
+                src="/logo.png" 
+                alt="Lola's List Logo" 
+                fill
+                className="object-contain"
+                priority
+                />
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <FilterPill label="Infant (0-18m)" active={filters.infant} onClick={() => toggleFilter('infant')} />
-              <FilterPill label="Toddler (18m-2.5y)" active={filters.toddler} onClick={() => toggleFilter('toddler')} />
-              <FilterPill label="$10/Day Program" active={filters.cwelcc} onClick={() => toggleFilter('cwelcc')} />
-              <FilterPill label="Subsidies" active={filters.subsidy} onClick={() => toggleFilter('subsidy')} />
+            {/* MIDDLE: FILTERS (Relocated here) */}
+            <div className="flex-1 flex flex-col items-center md:items-start w-full md:w-auto order-last md:order-none">
+                <span className="text-sm font-bold text-slate-700 mb-2 block">Filters!</span>
+                <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                  <FilterPill label="Infant (0-18m)" active={filters.infant} onClick={() => toggleFilter('infant')} />
+                  <FilterPill label="Toddler (18m-2.5y)" active={filters.toddler} onClick={() => toggleFilter('toddler')} />
+                  <FilterPill label="$10/Day Program" active={filters.cwelcc} onClick={() => toggleFilter('cwelcc')} />
+                  <FilterPill label="Subsidies" active={filters.subsidy} onClick={() => toggleFilter('subsidy')} />
+                </div>
+            </div>
+              
+            {/* RIGHT: AUTH SECTION */}
+            <div className="shrink-0">
+                {user ? (
+                    <div className="flex items-center gap-3">
+                        <Link href="/dashboard" className="flex items-center gap-2 bg-yellow-100 px-4 py-2 rounded-lg border border-yellow-300 hover:bg-yellow-200 transition-all cursor-pointer group shadow-sm">
+                            <div className="h-8 w-8 rounded-full bg-yellow-400 text-slate-900 flex items-center justify-center text-sm font-bold">
+                                {user.email[0].toUpperCase()}
+                            </div>
+                            <span className="text-sm font-bold text-slate-800 hidden sm:block">
+                                My Shortlist
+                            </span>
+                        </Link>
+                        
+                        <button 
+                            onClick={handleLogout}
+                            className="text-sm font-semibold text-slate-500 hover:text-red-600 transition-colors px-2"
+                        >
+                            Log Out
+                        </button>
+                    </div>
+                ) : (
+                    <Link href="/login" className="text-sm font-bold text-white bg-blue-500 hover:bg-blue-600 px-5 py-2.5 rounded-full shadow-md transition-colors">
+                    Sign In
+                    </Link>
+                )}
             </div>
 
           </div>
         </div>
       </div>
 
-      <div className="absolute inset-0 z-0 pt-[160px] md:pt-[140px]"> {/* Added top padding to map so it doesn't get cut off by the banner */}
+      {/* Adjusted top padding to account for taller header (approx 230px) */}
+      <div className="absolute inset-0 z-0 pt-[230px]">
         <Map daycares={filteredDaycares} />
       </div>
     </main>
