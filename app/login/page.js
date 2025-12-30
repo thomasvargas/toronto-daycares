@@ -10,33 +10,31 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [isError, setIsError] = useState(false)
 
-  const handleSignUp = async (e) => {
+  const handleAuth = async (e, type) => {
     e.preventDefault()
     setLoading(true)
-    const { data, error } = await supabase.auth.signUp({
+    setMessage('')
+    
+    // Select the right function based on which button was clicked
+    const action = type === 'signup' ? supabase.auth.signUp : supabase.auth.signInWithPassword
+    
+    const { data, error } = await action({
       email,
       password,
     })
-    if (error) setMessage(error.message)
-    else {
-      setMessage('Account created! Logging you in...')
-      // If auto-confirm is on, we can redirect immediately
-      router.push('/')
-    }
-    setLoading(false)
-  }
 
-  const handleSignIn = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) setMessage(error.message)
-    else {
-      router.push('/') // Send them back to the map
+    if (error) {
+      setIsError(true)
+      setMessage(error.message)
+    } else {
+      setIsError(false)
+      setMessage(type === 'signup' ? 'Success! Account created. Logging you in...' : 'Welcome back!')
+      // Redirect after 1 second so you can read the message
+      setTimeout(() => {
+        router.push('/')
+      }, 1000)
     }
     setLoading(false)
   }
@@ -46,12 +44,13 @@ export default function Login() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Welcome Back</h1>
-          <p className="text-slate-500 mt-2">Sign in to save daycares and track your favorites.</p>
+          <h1 className="text-2xl font-bold text-slate-900">Welcome</h1>
+          <p className="text-slate-500 mt-2">Sign in to save your favorite daycares.</p>
         </div>
 
+        {/* FEEDBACK MESSAGE (Green for Success, Red for Error) */}
         {message && (
-          <div className="mb-4 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg">
+          <div className={`mb-6 p-3 text-sm rounded-lg font-medium text-center ${isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
             {message}
           </div>
         )}
@@ -63,7 +62,8 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all"
+              // FIXED: Forces dark text on white background
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg text-slate-900 bg-white focus:ring-2 focus:ring-slate-900 outline-none"
               placeholder="tom@example.com"
             />
           </div>
@@ -74,21 +74,22 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all"
+              // FIXED: Forces dark text on white background
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg text-slate-900 bg-white focus:ring-2 focus:ring-slate-900 outline-none"
               placeholder="••••••••"
             />
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-4">
             <button
-              onClick={handleSignIn}
+              onClick={(e) => handleAuth(e, 'signin')}
               disabled={loading}
               className="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50"
             >
               {loading ? '...' : 'Sign In'}
             </button>
             <button
-              onClick={handleSignUp}
+              onClick={(e) => handleAuth(e, 'signup')}
               disabled={loading}
               className="flex-1 bg-white text-slate-900 border border-gray-200 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
@@ -99,7 +100,7 @@ export default function Login() {
         
         <div className="mt-6 text-center">
            <Link href="/" className="text-xs text-slate-400 hover:text-slate-600">
-             ← Back to Map without logging in
+             ← Back to Map
            </Link>
         </div>
 
