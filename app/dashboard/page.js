@@ -128,7 +128,6 @@ export default function Dashboard() {
         {/* STATS WIDGET */}
         {savedItems.length > 0 && (
           <div>
-            {/* NEW HEADER FOR STATS */}
             <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-lg font-bold text-slate-900">My Progress Stats</h2>
                 <span className="flex h-2 w-2 relative">
@@ -269,7 +268,14 @@ function TrackerCard({ item, onRemove, isOverdue }) {
               <span className={`text-xs font-bold uppercase shrink-0 ${isOverdue ? 'text-red-400' : 'text-slate-400'}`}>Follow Up:</span>
               <input type="date" value={data.follow_up_date} onChange={(e) => updateField('follow_up_date', e.target.value)} className={`w-full text-sm font-bold border-none bg-transparent focus:ring-0 p-0 ${isOverdue ? 'text-red-600' : 'text-slate-700'}`}/>
            </div>
-           <textarea placeholder="Add notes..." value={data.notes} onChange={(e) => updateField('notes', e.target.value)} className="w-full text-sm p-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-blue-400 focus:ring-1 bg-white resize-none h-24 transition-all placeholder:text-slate-400"/>
+           
+           {/* UPDATED: Added text-slate-900 to ensure text is dark black */}
+           <textarea 
+             placeholder="Add notes..." 
+             value={data.notes} 
+             onChange={(e) => updateField('notes', e.target.value)} 
+             className="w-full text-sm text-slate-900 p-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-blue-400 focus:ring-1 bg-white resize-none h-24 transition-all placeholder:text-slate-400"
+           />
         </div>
       </div>
     </div>
