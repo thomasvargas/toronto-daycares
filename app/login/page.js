@@ -17,13 +17,16 @@ export default function Login() {
     setLoading(true)
     setMessage('')
     
-    // Select the right function based on which button was clicked
-    const action = type === 'signup' ? supabase.auth.signUp : supabase.auth.signInWithPassword
-    
-    const { data, error } = await action({
-      email,
-      password,
-    })
+    let result
+
+    // FIXED: Call the functions directly to preserve "this" context
+    if (type === 'signup') {
+      result = await supabase.auth.signUp({ email, password })
+    } else {
+      result = await supabase.auth.signInWithPassword({ email, password })
+    }
+
+    const { error } = result
 
     if (error) {
       setIsError(true)
@@ -31,7 +34,6 @@ export default function Login() {
     } else {
       setIsError(false)
       setMessage(type === 'signup' ? 'Success! Account created. Logging you in...' : 'Welcome back!')
-      // Redirect after 1 second so you can read the message
       setTimeout(() => {
         router.push('/')
       }, 1000)
@@ -48,7 +50,7 @@ export default function Login() {
           <p className="text-slate-500 mt-2">Sign in to save your favorite daycares.</p>
         </div>
 
-        {/* FEEDBACK MESSAGE (Green for Success, Red for Error) */}
+        {/* FEEDBACK MESSAGE */}
         {message && (
           <div className={`mb-6 p-3 text-sm rounded-lg font-medium text-center ${isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
             {message}
@@ -62,7 +64,6 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              // FIXED: Forces dark text on white background
               className="w-full px-4 py-2 border border-gray-200 rounded-lg text-slate-900 bg-white focus:ring-2 focus:ring-slate-900 outline-none"
               placeholder="tom@example.com"
             />
@@ -74,7 +75,6 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              // FIXED: Forces dark text on white background
               className="w-full px-4 py-2 border border-gray-200 rounded-lg text-slate-900 bg-white focus:ring-2 focus:ring-slate-900 outline-none"
               placeholder="••••••••"
             />
