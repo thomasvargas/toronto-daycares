@@ -11,7 +11,7 @@ const Map = dynamic(() => import('../components/Map'), {
 
 export default function Home() {
   const [daycares, setDaycares] = useState([])
-  const [user, setUser] = useState(null) // Track the user
+  const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     infant: false,
@@ -26,7 +26,7 @@ export default function Home() {
       const { data: daycareData } = await supabase.from('daycares').select('*')
       if (daycareData) setDaycares(daycareData)
 
-      // 2. Check who is logged in
+      // 2. Check for User Session
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
       
@@ -34,6 +34,11 @@ export default function Home() {
     }
     fetchData()
   }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null) // Clear the user from the screen immediately
+  }
 
   const filteredDaycares = daycares.filter(daycare => {
     if (filters.infant && !daycare.accepts_infant) return false
@@ -63,15 +68,26 @@ export default function Home() {
                 </p>
               </div>
               
-              {/* AUTH BUTTON: Shows Email if logged in, Sign In button if not */}
+              {/* AUTH SECTION */}
               {user ? (
-                <div className="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                   <div className="h-6 w-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold">
-                      {user.email[0].toUpperCase()}
-                   </div>
-                   <span className="text-xs font-semibold text-slate-700 hidden sm:block">
-                      {user.email}
-                   </span>
+                <div className="flex items-center gap-2">
+                    {/* User Badge */}
+                    <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                        <div className="h-6 w-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold">
+                            {user.email[0].toUpperCase()}
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700 hidden sm:block">
+                            {user.email}
+                        </span>
+                    </div>
+                    
+                    {/* Logout Button */}
+                    <button 
+                        onClick={handleLogout}
+                        className="text-xs font-semibold text-slate-400 hover:text-red-600 transition-colors px-2"
+                    >
+                        Log Out
+                    </button>
                 </div>
               ) : (
                 <Link href="/login" className="text-sm font-semibold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
