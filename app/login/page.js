@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Login() {
   const router = useRouter()
@@ -18,8 +19,6 @@ export default function Login() {
     setMessage('')
     
     let result
-
-    // FIXED: Call the functions directly to preserve "this" context
     if (type === 'signup') {
       result = await supabase.auth.signUp({ email, password })
     } else {
@@ -42,65 +41,79 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF7] px-4">
+      
+      {/* BRANDING: Big Logo */}
+      <div className="relative h-40 w-80 mb-6">
+        <Image 
+            src="/logo.png" 
+            alt="Lola's List" 
+            fill
+            className="object-contain mix-blend-multiply"
+            priority
+        />
+      </div>
+
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-lg border border-stone-100 p-8 sm:p-10">
         
         <div className="text-center mb-8">
-          {/* BRANDING UPDATE */}
-          <h1 className="text-3xl font-bold text-slate-900">Lola&apos;s List</h1>
-          <p className="text-slate-500 mt-2">Sign in to your curated childcare finder.</p>
+          <h1 className="text-2xl font-bold text-slate-900">Welcome Back</h1>
+          <p className="text-slate-500 mt-2 text-sm">Sign in to manage your childcare shortlist.</p>
         </div>
 
         {/* FEEDBACK MESSAGE */}
         {message && (
-          <div className={`mb-6 p-3 text-sm rounded-lg font-medium text-center ${isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+          <div className={`mb-6 p-3 text-sm rounded-xl font-bold text-center ${isError ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
             {message}
           </div>
         )}
 
-        <form className="space-y-4">
+        <form className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg text-slate-900 bg-white focus:ring-2 focus:ring-slate-900 outline-none"
-              placeholder="tom@example.com"
+              className="w-full px-4 py-3 border border-stone-200 rounded-xl text-slate-900 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all font-medium"
+              placeholder="parent@example.com"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg text-slate-900 bg-white focus:ring-2 focus:ring-slate-900 outline-none"
+              className="w-full px-4 py-3 border border-stone-200 rounded-xl text-slate-900 bg-stone-50 focus:bg-white focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all font-medium"
               placeholder="••••••••"
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col gap-3 pt-4">
+            {/* PRIMARY ACTION: Sign In (Yellow) */}
             <button
               onClick={(e) => handleAuth(e, 'signin')}
               disabled={loading}
-              className="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50"
+              className="w-full bg-yellow-400 text-slate-900 py-3.5 rounded-xl font-bold hover:bg-yellow-300 hover:scale-[1.02] transition-all shadow-md disabled:opacity-50 disabled:hover:scale-100"
             >
-              {loading ? '...' : 'Sign In'}
+              {loading ? 'Loading...' : 'Sign In'}
             </button>
+            
+            {/* SECONDARY ACTION: Sign Up (Ghost) */}
             <button
               onClick={(e) => handleAuth(e, 'signup')}
               disabled={loading}
-              className="flex-1 bg-white text-slate-900 border border-gray-200 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="w-full bg-white text-slate-500 border-2 border-slate-100 py-3.5 rounded-xl font-bold hover:border-slate-300 hover:text-slate-700 transition-all disabled:opacity-50"
             >
-              Sign Up
+              Create an Account
             </button>
           </div>
         </form>
         
-        <div className="mt-6 text-center">
-           <Link href="/" className="text-xs text-slate-400 hover:text-slate-600">
+        <div className="mt-8 text-center">
+           <Link href="/" className="text-sm font-bold text-blue-500 hover:text-blue-700 hover:underline">
              ← Back to Map
            </Link>
         </div>
