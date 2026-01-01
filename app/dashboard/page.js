@@ -40,7 +40,6 @@ export default function Dashboard() {
       setHomeCoords(session.user.user_metadata.coords)
     }
 
-    // NEW: We now fetch 'contact_name' as well
     const { data, error } = await supabase
       .from('saved_daycares')
       .select(`id, contacted, contacted_date, contact_name, on_waitlist, follow_up_date, notes, daycares (*)`)
@@ -53,6 +52,12 @@ export default function Dashboard() {
   }
 
   useEffect(() => { fetchSaved() }, [router])
+
+  // NEW: Global Sign Out Handler
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
 
   const getDistance = (lat, lon) => {
     if (!homeCoords || !lat || !lon) return null
@@ -104,7 +109,7 @@ export default function Dashboard() {
     const rows = savedItems.map(item => [
       item.daycares.name, item.daycares.phone, 
       item.contacted ? 'Yes' : 'No', 
-      `"${item.contact_name || ''}"`, // NEW CSV Column
+      `"${item.contact_name || ''}"`,
       item.on_waitlist ? 'Yes' : 'No', 
       item.follow_up_date || '', `"${item.notes || ''}"`
     ])
@@ -141,6 +146,9 @@ export default function Dashboard() {
             </div>
             <div className="flex-1 text-center lg:text-left"><h1 className="text-2xl font-bold text-slate-900">My Dashboard</h1></div>
             <div className="shrink-0 flex items-center gap-3">
+               {/* NEW: Sign Out Button */}
+               <button onClick={handleSignOut} className="text-sm font-bold text-slate-400 hover:text-red-500 px-3 transition-colors">Sign Out</button>
+               
                <button onClick={() => setShowSettings(!showSettings)} className="text-sm font-bold text-slate-500 hover:text-slate-900 bg-white border border-stone-200 px-4 py-2 rounded-lg shadow-sm">{showSettings ? 'Close' : '⚙️ Settings'}</button>
                <Link href="/" className="text-sm font-bold bg-yellow-400 text-slate-900 px-5 py-2 rounded-full hover:bg-yellow-300 shadow-sm whitespace-nowrap">← Back to Map</Link>
             </div>
@@ -170,7 +178,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* CONTENT */}
+      {/* CONTENT (Stats, Controls, List) */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 space-y-8">
         
         {/* STATS */}
@@ -238,7 +246,6 @@ function TrackerCard({ item, onRemove, isOverdue, distance }) {
   const [data, setData] = useState({ 
     contacted: item.contacted || false, 
     contacted_date: item.contacted_date || '', 
-    // NEW: Load Contact Name
     contact_name: item.contact_name || '', 
     on_waitlist: item.on_waitlist || false, 
     follow_up_date: item.follow_up_date || '', 
@@ -272,16 +279,9 @@ function TrackerCard({ item, onRemove, isOverdue, distance }) {
                <label className="text-sm font-bold text-slate-700 flex items-center gap-3 w-full cursor-pointer"><input type="checkbox" checked={data.contacted} onChange={(e) => updateField('contacted', e.target.checked)} className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"/> Contacted?</label>
                {data.contacted && <input type="date" value={data.contacted_date} onChange={(e) => updateField('contacted_date', e.target.value)} className="text-xs font-medium border-none bg-transparent text-blue-600 focus:ring-0 text-right p-0"/>}
             </div>
-            {/* NEW: Contact Name Input */}
             {data.contacted && (
                <div className="mt-3 pt-3 border-t border-blue-200/50">
-                  <input 
-                    type="text" 
-                    placeholder="Who did you speak to? (e.g. Sarah)" 
-                    value={data.contact_name} 
-                    onChange={(e) => updateField('contact_name', e.target.value)}
-                    className="w-full text-xs text-slate-700 bg-white/50 border border-blue-100 rounded px-2 py-1 focus:ring-1 focus:ring-blue-400 outline-none placeholder:text-blue-300"
-                  />
+                  <input type="text" placeholder="Who did you speak to? (e.g. Sarah)" value={data.contact_name} onChange={(e) => updateField('contact_name', e.target.value)} className="w-full text-xs text-slate-700 bg-white/50 border border-blue-100 rounded px-2 py-1 focus:ring-1 focus:ring-blue-400 outline-none placeholder:text-blue-300"/>
                </div>
             )}
           </div>
